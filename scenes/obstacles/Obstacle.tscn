@@ -2,6 +2,9 @@
 
 [ext_resource type="Script" path="res://scripts/obstacles/Obstacle.cs" id="Obstacle_cs"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_obst"]
+size = Vector2(32, 48)
+
 [node name="Obstacle" type="Area2D"]
 script = ExtResource("Obstacle_cs")
 collision_layer = 2
@@ -13,8 +16,5 @@ shape = SubResource("RectangleShape2D_obst")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(1, 1)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_obst"]
-size = Vector2(32, 48)
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]

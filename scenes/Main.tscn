@@ -1,10 +1,20 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://scripts/GameManager.cs" id="GameManager_cs"]
+[ext_resource type="Script" path="res://scripts/Player.cs" id="Player_cs"]
+[ext_resource type="PackedScene" path="res://scenes/obstacles/Obstacle.tscn" id="Obstacle_tscn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(32, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(2000, 40)
+
 [node name="Main" type="Node2D"]
 
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("GameManager_cs")
-PlayerPath = NodePath("Player")
+PlayerPath = NodePath("../Player")
 ObstacleScene = ExtResource("Obstacle_tscn")
 WorldSpeed = 200.0
 SpeedRamp = 4.0
@@ -31,13 +41,3 @@ position = Vector2(640, 560)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
 shape = SubResource("RectangleShape2D_ground")
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(32, 48)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
-size = Vector2(2000, 40)
-
-[ext_resource type="Script" path="res://scripts/GameManager.cs" id="GameManager_cs"]
-[ext_resource type="Script" path="res://scripts/Player.cs" id="Player_cs"]
-[ext_resource type="PackedScene" path="res://scenes/obstacles/Obstacle.tscn" id="Obstacle_tscn"]
