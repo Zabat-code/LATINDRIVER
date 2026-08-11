@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[node name="Main" type="Node2D"]
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("GameManager_cs")
+PlayerPath = NodePath("Player")
+ModePath = NodePath("TimeAttackMode")
+
+[node name="TimeAttackMode" type="Node" parent="."]
+script = ExtResource("TimeAttackMode_cs")
+StartingTime = 60.0
+GoalPositionX = 2000.0
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(120, 480)
+script = ExtResource("Player_cs")
+Speed = 200.0
+JumpForce = -400.0
+Gravity = 900.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, -16)
+shape = SubResource("RectangleShape2D_player")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+texture = null
+
+[node name="Ground" type="StaticBody2D" parent="."]
+position = Vector2(640, 560)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+shape = SubResource("RectangleShape2D_ground")
+
+[node name="Obstacle" parent="." instance=ExtResource("Obstacle_tscn")]
+position = Vector2(700, 512)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(32, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(2000, 40)
+
+[ext_resource type="Script" path="res://scripts/GameManager.cs" id="GameManager_cs"]
+[ext_resource type="Script" path="res://scripts/modes/TimeAttackMode.cs" id="TimeAttackMode_cs"]
+[ext_resource type="Script" path="res://scripts/Player.cs" id="Player_cs"]
+[ext_resource type="PackedScene" path="res://scenes/obstacles/Obstacle.tscn" id="Obstacle_tscn"]
