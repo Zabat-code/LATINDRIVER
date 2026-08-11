@@ -18,6 +18,14 @@ obj/
 .DS_Store
 Thumbs.db
 
+# Editor embebido (no versionar el binario de Godot, 256MB+)
+Godot_v4.7.1-stable_mono_win64/
+
+# Misc local artifacts
+files.zip
+*.csproj.old
+*.old
+
 # Editor
 .vscode/
 .idea/
