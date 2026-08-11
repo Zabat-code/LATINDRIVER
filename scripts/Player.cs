@@ -1,25 +1,18 @@
 using Godot;
 
 // Player.cs
-// Controla el movimiento automático hacia adelante de la moto, el salto,
-// el agachado/deslizamiento, y detecta colisiones con obstáculos.
-// No contiene lógica de ningún modo de juego específico (ver PROJECT_CONTEXT.md,
-// sección "Arquitectura de modos de juego").
+// Corredor: la moto avanza "hacia la derecha" pero en pantalla se queda en su X
+// y el mundo (obstáculos) se desplaza hacia la izquierda. Aquí solo manejamos
+// salto, agachado/deslizamiento y la gravedad. La colisión con obstáculos la
+// detecta el Obstacle (Area2D) y emite HitPlayer, que escucha GameManager.
 
 public partial class Player : CharacterBody2D
 {
-	// Velocidad de avance automático horizontal (px/s)
-	[Export] public float Speed = 200f;
-
-	// Fuerza del impulso de salto (valor negativo = hacia arriba en Godot)
+	// Gravedad y salto (px/s). El "avance" lo define GameManager vía WorldSpeed.
 	[Export] public float JumpForce = -400f;
-
-	// Gravedad aplicada mientras el jugador está en el aire
 	[Export] public float Gravity = 900f;
+	[Export] public float CrouchScaleY = 0.5f;
 
-	// Señal emitida cuando el jugador choca con un obstáculo.
-	// El GameManager / modo de juego activo debe escuchar esta señal
-	// y decidir qué hacer (perder vida, game over, etc.)
 	[Signal] public delegate void PlayerHitEventHandler();
 
 	private CollisionShape2D _collisionShape;
@@ -28,10 +21,8 @@ public partial class Player : CharacterBody2D
 
 	public override void _Ready()
 	{
+		AddToGroup("player");
 		_collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
-
-		// Guardamos el tamaño original de la colisión para poder restaurarlo
-		// al salir del agachado. Asume una RectangleShape2D; ajustar si se usa otra forma.
 		if (_collisionShape.Shape is RectangleShape2D rectShape)
 		{
 			_originalCollisionSize = rectShape.Size;
@@ -43,10 +34,7 @@ public partial class Player : CharacterBody2D
 		float dt = (float)delta;
 		Vector2 velocity = Velocity;
 
-		// Avance automático constante
-		velocity.X = Speed;
-
-		// Gravedad
+		// Gravedad / suelo
 		if (!IsOnFloor())
 		{
 			velocity.Y += Gravity * dt;
@@ -56,53 +44,34 @@ public partial class Player : CharacterBody2D
 			velocity.Y = 0;
 		}
 
-		// Input de salto (solo si está en el suelo)
+		// Salto (solo en suelo)
 		if (Input.IsActionJustPressed("ui_up") && IsOnFloor())
 		{
 			velocity.Y = JumpForce;
 		}
 
-		// Input de agachar/deslizar
+		// Agachar / deslizar
 		bool wantsCrouch = Input.IsActionPressed("ui_down");
 		if (wantsCrouch != _isCrouching)
 		{
 			SetCrouching(wantsCrouch);
 		}
 
+		// Sin avance horizontal: el mundo se mueve hacia el jugador.
+		velocity.X = 0;
 		Velocity = velocity;
 		MoveAndSlide();
-
-		// Revisar colisiones con obstáculos
-		CheckObstacleCollisions();
 	}
 
 	private void SetCrouching(bool crouching)
 	{
 		_isCrouching = crouching;
-
 		if (_collisionShape.Shape is RectangleShape2D rectShape)
 		{
-			if (crouching)
-			{
-				// Reduce la altura de la colisión a la mitad para pasar bajo obstáculos altos
-				rectShape.Size = new Vector2(_originalCollisionSize.X, _originalCollisionSize.Y / 2f);
-			}
-			else
-			{
-				rectShape.Size = _originalCollisionSize;
-			}
+			rectShape.Size = crouching
+				? new Vector2(_originalCollisionSize.X, _originalCollisionSize.Y * CrouchScaleY)
+				: _originalCollisionSize;
 		}
-	}
-
-	private void CheckObstacleCollisions()
-	{
-		for (int i = 0; i < GetSlideCollisionCount(); i++)
-		{
-			KinematicCollision2D collision = GetSlideCollision(i);
-			if (collision.GetCollider() is Node2D collider && collider.IsInGroup("obstacle"))
-			{
-				EmitSignal(SignalName.PlayerHit);
-			}
-		}
+		Scale = crouching ? new Vector2(1, CrouchScaleY) : new Vector2(1, 1);
 	}
 }
