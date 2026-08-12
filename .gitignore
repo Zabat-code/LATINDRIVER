@@ -29,3 +29,11 @@ files.zip
 # Editor
 .vscode/
 .idea/
+
+# logs de generacion/verificacion temporal
+.comfy_launch.log
+.gen_assets.log
+.import.log
+.probe.log
+.godot/
+__pycache__/
