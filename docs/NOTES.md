@@ -68,6 +68,32 @@
 - Verificación headless: Main (3 botones) y Level cargan sin errores de juego;
   cableado Dog/Pickup/botones confirmado. Build 0 errores.
 
+## Fix del carril (sesión -fwon, 10 pasos concluidos)
+Síntoma reportado por el usuario: "se ve el placeholder, se agacha pero NO
+cambia de carril". Causa raíz y arreglos:
+- **Camera2D colgada del Player en Level.tscn**: la cámara heredaba el Y del
+  jugador, así que al cambiar de carril la vista se movía con el sprite y el
+  cambio era invisible. Se eliminó esa cámara (queda solo la de Level, con Y
+  fija en 400 y siguiendo solo X). Ahora el cambio de carril es visible.
+- **Pelea gravedad/lerp**: el Player era CharacterBody2D con gravedad global
+  que lo bajaba al suelo (~540) mientras el lerp forzaba Y a 510. Reescrito
+  Player.cs para usar salto por "altura propia" (sin gravedad global): el
+  carril queda en Y fija y estable, el salto es un offset que sube/baja.
+- **Colisión Obstacle→Player sorda**: el Obstacle era `Area2D` y usaba
+  `area_entered`, que NO detecta un `CharacterBody2D` → el game over nunca
+  disparaba. Ahora Obstacle es `StaticBody2D` en grupo `"obstacle"` y el
+  Player lo detecta por `GetSlideCollision` y emite `PlayerHit`, que
+  GameManager ya escucha (`OnObstacleHitPlayer`).
+- **Obstáculos siempre en carril central**: `LevelGenerator` spawneaba en Y
+  fijo (512), así que cambiar de carril no servía de esquive. Ahora sale en
+  carril aleatorio (440/510/580).
+- Carriles separados 70px (440/510/580) para que el cambio sea claramente
+  visible.
+- Verificación: `dotnet build` 0 errores + headless REAL de MainMenu y Level
+  sin errores de juego. **Sin playtest visual** (sin GUI de Godot en este
+  entorno): el feel del salto/carril hay que confirmarlo abriendo en el
+  editor. Plan de los 10 pasos en `docs/PLAN_10_PASOS.md`.
+
 ## Bugs conocidos / dudas para el arquitecto
 - En ChaseMode la "victoria" no existe (supervivencia); si se quiere objetivo por
   distancia, añadir `CheckWinCondition` aparte.
