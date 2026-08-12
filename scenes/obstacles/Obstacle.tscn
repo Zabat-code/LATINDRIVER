@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/obstacles/Obstacle.cs" id="Obstacle_cs"]
+[ext_resource type="Texture" path="res://assets/sprites/obstacle.png" id="Obstacle_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_obst"]
 size = Vector2(32, 48)
@@ -15,4 +16,6 @@ position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_obst")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(1, 1)
+texture = ExtResource("Obstacle_tex")
+centered = true
+offset = Vector2(0, -16)

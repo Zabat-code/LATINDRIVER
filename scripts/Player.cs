@@ -31,6 +31,12 @@ public partial class Player : CharacterBody2D
 	[Export] public float LaneY3 = 580f;   // carril bajo
 	[Export] public float LaneLerp = 14f;  // velocidad de interpolacion del carril
 
+	// Velocidad de avance del mundo (px/s). El jugador avanza en X para que la
+	// camara (que lo sigue) lo mantenga centrado en pantalla, pero su X global
+	// crece: asi el fondo se desplaza, la distancia aumenta y los modos pueden
+	// usar GlobalPosition.X como posicion de carrera.
+	[Export] public float RunSpeed = 200f;
+
 	[Signal] public delegate void PlayerHitEventHandler();
 	[Signal] public delegate void PlayerCollectedEventHandler(string itemType);
 
@@ -39,6 +45,7 @@ public partial class Player : CharacterBody2D
 	private bool _isCrouching = false;
 	private int _lane = 1;                 // 0,1,2 -> LaneY1/2/3
 	private float _targetY;
+	private float _worldX = 0f;            // X de carrera (crece con RunSpeed)
 	private float _jumpHeight = 0f;       // altura de salto actual (>=0)
 	private float _jumpVelocity = 0f;     // velocidad vertical del salto
 
@@ -52,7 +59,8 @@ public partial class Player : CharacterBody2D
 		}
 		_lane = 1;
 		_targetY = LaneY2;                 // carril central por defecto
-		Position = new Vector2(Position.X, _targetY);
+		_worldX = Position.X;              // arranca donde lo puso la escena
+		Position = new Vector2(_worldX, _targetY);
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -96,9 +104,14 @@ public partial class Player : CharacterBody2D
 		Velocity = velocity;
 		MoveAndSlide();
 
-		// Posicion final: carril (lerp suave en Y) + altura de salto.
+		// Avance de la carrera: la X global crece (la camara lo mantiene centrado
+		// en pantalla). Esto mueve el fondo, sube la distancia y alimenta los
+		// modos (meta por X) y el spawn de obstaculos/perros.
+		_worldX += RunSpeed * dt;
+
+		// Posicion final: carril (lerp suave en Y) + altura de salto, X de carrera.
 		float newY = Mathf.Lerp(Position.Y, _targetY, LaneLerp * dt) - _jumpHeight;
-		Position = new Vector2(Position.X, newY);
+		Position = new Vector2(_worldX, newY);
 
 		// Detectar colisiones deslizantes: obstaculos (grupo "obstacle") y pickups
 		// (grupo "pickup").

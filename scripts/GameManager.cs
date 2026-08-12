@@ -166,9 +166,15 @@ public partial class GameManager : Node
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if ((_gameOver || _won) && (@event is InputEventKey key && key.Pressed && key.Keycode == Key.R))
-        {
-            GetTree().ReloadCurrentScene();
-        }
+    	// R: reiniciar la partida (en game over o victoria).
+    	if ((_gameOver || _won) && (@event is InputEventKey key && key.Pressed && key.Keycode == Key.R))
+    	{
+    		GetTree().ReloadCurrentScene();
+    	}
+    	// Esc: volver al menú principal en cualquier momento.
+    	if (@event is InputEventKey esc && esc.Pressed && esc.Keycode == Key.Escape)
+    	{
+    		GetTree().ChangeSceneToFile("res://scenes/MainMenu.tscn");
+    	}
     }
 }
