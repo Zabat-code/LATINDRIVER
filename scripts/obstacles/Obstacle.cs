@@ -1,18 +1,16 @@
 using Godot;
 
 // Obstacle.cs
-// Obstáculo que se desplaza hacia la izquierda (el mundo avanza). Cuando su
-// Area2D se solapa con el jugador (grupo "player") emite HitPlayer, que
-// GameManager usa para terminar la partida. Se auto-elimina al salir de pantalla.
-
-public partial class Obstacle : Area2D
+// Obstaculo que se desplaza hacia la izquierda (el mundo avanza). Es un
+// StaticBody2D en grupo "obstacle"; el Player (CharacterBody2D) lo detecta por
+// colision deslizante (GetSlideCollision) y emite PlayerHit, que GameManager
+// usa para terminar la partida. Se auto-elimina al salir de pantalla.
+public partial class Obstacle : StaticBody2D
 {
-	[Signal] public delegate void HitPlayerEventHandler();
-
 	// Velocidad horizontal impuesta por GameManager (px/s, negativa = hacia la izquierda).
 	public float Speed { get; set; } = -200f;
 
-	// X a partir de la cual el obstáculo se considera fuera de pantalla y se libera.
+	// X a partir de la cual el obstaculo se considera fuera de pantalla y se libera.
 	public float DespawnX { get; set; } = -100f;
 
 	public override void _PhysicsProcess(double delta)
@@ -21,14 +19,6 @@ public partial class Obstacle : Area2D
 		if (Position.X < DespawnX)
 		{
 			QueueFree();
-		}
-	}
-
-	private void _on_area_entered(Area2D area)
-	{
-		if (area.IsInGroup("player"))
-		{
-			EmitSignal(SignalName.HitPlayer);
 		}
 	}
 }

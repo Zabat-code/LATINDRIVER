@@ -51,7 +51,9 @@ public partial class GameManager : Node
             default:                       _mode = new TimeAttackMode(); break;
         }
 
-        // Conectar recolección de ítems (Player emite PlayerCollected al tocar "pickup").
+        // Conectar colisión con obstáculos (Player emite PlayerHit al tocar
+        // un nodo del grupo "obstacle") y recolección de ítems.
+        _player.PlayerHit += OnObstacleHitPlayer;
         _player.PlayerCollected += OnPlayerCollected;
 
         // Dar referencia del jugador al modo y al generador.
@@ -59,6 +61,9 @@ public partial class GameManager : Node
         _levelGenerator?.ConfigureForMode(_modeType);
         _levelGenerator?.SetPlayerReference(_player);
         _levelGenerator?.SetGameManager(this);
+        // Aplicar mapa + turno (densidad/velocidad y tinte visual).
+        _levelGenerator?.ConfigureMap(GameConfig.SelectedMap, GameConfig.SelectedTurn);
+        ApplyMapTint(GameConfig.SelectedMap, GameConfig.SelectedTurn);
 
         _mode.OnStart();
         _startX = _player != null ? _player.GlobalPosition.X : 0f;
@@ -136,6 +141,14 @@ public partial class GameManager : Node
     {
         if (_gameOver || _won) return;
         _mode.OnPlayerCollected(itemType);
+    }
+
+    // Aplica el tinte de color del mapa+turno al fondo (Sprite2D Background).
+    private void ApplyMapTint(int mapIndex, TurnType turn)
+    {
+        Node root = GetTree().Root;
+        var bg = NodeUtils.FindInTree<Sprite2D>(root, "Background");
+        if (bg != null) bg.Modulate = MapConfig.TinteMapa(mapIndex, turn);
     }
 
     // Llamado por LevelGenerator cuando un Obstacle golpea al jugador.

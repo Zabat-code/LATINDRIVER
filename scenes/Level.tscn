@@ -83,5 +83,3 @@ shape = SubResource("RectangleShape2D_player")
 texture = ExtResource("Player_tex")
 centered = false
 offset = Vector2(0, -48)
-
-[node name="Camera2D" type="Camera2D" parent="Player"]

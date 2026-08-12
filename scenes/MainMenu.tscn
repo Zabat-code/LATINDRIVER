@@ -11,31 +11,81 @@ offset_bottom = 720.0
 color = Color(0.12, 0.14, 0.2, 1)
 
 [node name="Title" type="Label" parent="."]
-position = Vector2(40, 40)
+position = Vector2(40, 20)
 scale = Vector2(3, 3)
 text = "LATINDRIVER"
 
 [node name="ModeLabel" type="Label" parent="."]
-position = Vector2(40, 160)
+position = Vector2(40, 120)
 scale = Vector2(2, 2)
 text = "Modo: Contra Reloj"
 
 [node name="Mode1Button" type="Button" parent="."]
-position = Vector2(40, 260)
-size = Vector2(360, 60)
+position = Vector2(40, 180)
+size = Vector2(360, 50)
 text = "1 - Contra Reloj (TimeAttack)"
 
 [node name="Mode2Button" type="Button" parent="."]
-position = Vector2(40, 340)
-size = Vector2(360, 60)
+position = Vector2(40, 240)
+size = Vector2(360, 50)
 text = "2 - Perros (Chase)"
 
 [node name="Mode3Button" type="Button" parent="."]
-position = Vector2(40, 420)
-size = Vector2(360, 60)
+position = Vector2(40, 300)
+size = Vector2(360, 50)
 text = "3 - Gasolina (Fuel)"
 
+[node name="MapLabel" type="Label" parent="."]
+position = Vector2(460, 120)
+scale = Vector2(2, 2)
+text = "Mapa: Ciudad Colonial (SD)"
+
+[node name="Map1Button" type="Button" parent="."]
+position = Vector2(460, 180)
+size = Vector2(360, 50)
+text = "4 - Pueblito (Nagua)"
+
+[node name="Map2Button" type="Button" parent="."]
+position = Vector2(460, 240)
+size = Vector2(360, 50)
+text = "5 - Ciudad Colonial (SD)"
+
+[node name="Map3Button" type="Button" parent="."]
+position = Vector2(460, 300)
+size = Vector2(360, 50)
+text = "6 - Megaciudad (Gazcue)"
+
+[node name="Map4Button" type="Button" parent="."]
+position = Vector2(460, 360)
+size = Vector2(360, 50)
+text = "7 - Ciudad Marginada"
+
+[node name="Map5Button" type="Button" parent="."]
+position = Vector2(460, 420)
+size = Vector2(360, 50)
+text = "8 - Avenida Interprovincial"
+
+[node name="TurnLabel" type="Label" parent="."]
+position = Vector2(40, 380)
+scale = Vector2(2, 2)
+text = "Turno: Tarde"
+
+[node name="Turn1Button" type="Button" parent="."]
+position = Vector2(40, 440)
+size = Vector2(360, 50)
+text = "9 - Día"
+
+[node name="Turn2Button" type="Button" parent="."]
+position = Vector2(40, 500)
+size = Vector2(360, 50)
+text = "0 - Tarde"
+
+[node name="Turn3Button" type="Button" parent="."]
+position = Vector2(40, 560)
+size = Vector2(360, 50)
+text = "- - Noche"
+
 [node name="PlayButton" type="Button" parent="."]
-position = Vector2(40, 520)
-size = Vector2(360, 80)
+position = Vector2(40, 640)
+size = Vector2(360, 60)
 text = "JUGAR"

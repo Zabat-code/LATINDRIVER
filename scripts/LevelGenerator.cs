@@ -26,9 +26,16 @@ public partial class LevelGenerator : Node
 	private Godot.Timer _timer;
 	private bool _spawning = true;
 	private GameModeType _mode = GameModeType.TimeAttack;
+	private float _worldSpeedMult = 1.0f;
 
 	public void SetPlayerReference(Player player) { _player = player; }
 	public void SetGameManager(GameManager gm) { _gameManager = gm; }
+
+	// Llamado por GameManager tras crear el modo activo.
+	public void ConfigureForMode(GameModeType mode)
+	{
+		_mode = mode;
+	}
 
 	public override void _Ready()
 	{
@@ -46,10 +53,16 @@ public partial class LevelGenerator : Node
 		_timer.Start();
 	}
 
-	// Llamado por GameManager tras crear el modo activo.
-	public void ConfigureForMode(GameModeType mode)
+	// Aplica mapa + turno: ajusta la frecuencia (SpawnInterval) y velocidad de
+	// obstáculos según la densidad/velocidad del mapa y el turno.
+	public void ConfigureMap(int mapIndex, TurnType turn)
 	{
-		_mode = mode;
+		float densidad = MapConfig.Maps[mapIndex].DensidadBase * MapConfig.TurnDensidad(turn);
+		float velocidad = MapConfig.Maps[mapIndex].VelocidadBase * MapConfig.TurnVelocidad(turn);
+		// densidad alta => spawn más frecuente (intervalo menor).
+		SpawnInterval = Mathf.Clamp(2.2f / densidad, 0.6f, 4.0f);
+		_worldSpeedMult = velocidad;
+		if (_timer != null) _timer.WaitTime = SpawnInterval;
 	}
 
 	public void StopSpawning()
@@ -64,12 +77,15 @@ public partial class LevelGenerator : Node
 
 		float spawnX = _player.GlobalPosition.X + SpawnAhead;
 
-		// Siempre puede haber un obstáculo.
+		// Siempre puede haber un obstáculo, en un carril aleatorio (alto/medio/bajo)
+		// para que el cambio de carril sirva de esquive.
 		if (ObstacleScene != null)
 		{
+			float[] lanes = new float[] { 440f, 510f, 580f };
+			float laneY = lanes[(int)(GD.Randf() * lanes.Length)];
 			Obstacle obs = (Obstacle)ObstacleScene.Instantiate();
-			obs.Position = new Vector2(spawnX, ObstacleY);
-			if (_gameManager != null) obs.HitPlayer += _gameManager.OnObstacleHitPlayer;
+			obs.Position = new Vector2(spawnX, laneY);
+			obs.Speed = -200f * _worldSpeedMult;   // base ajustada por mapa/turno
 			AddChild(obs);
 		}
 
