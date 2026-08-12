@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/obstacles/Pickup.cs" id="Pickup_cs"]
+[ext_resource type="Texture" path="res://assets/sprites/602575.png" id="Pickup_tex"]
+
+[sub_resource type="RectangleShape2D" id="rect_pickup"]
+size = Vector2(32, 32)
+
+[node name="Pickup" type="StaticBody2D"]
+script = ExtResource("Pickup_cs")
+collision_layer = 2
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -16)
+shape = SubResource("rect_pickup")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("Pickup_tex")
+centered = true
+offset = Vector2(0, -16)

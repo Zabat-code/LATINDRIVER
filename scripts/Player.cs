@@ -14,6 +14,7 @@ public partial class Player : CharacterBody2D
 	[Export] public float CrouchScaleY = 0.5f;
 
 	[Signal] public delegate void PlayerHitEventHandler();
+	[Signal] public delegate void PlayerCollectedEventHandler(string itemType);
 
 	private CollisionShape2D _collisionShape;
 	private Vector2 _originalCollisionSize;
@@ -61,6 +62,20 @@ public partial class Player : CharacterBody2D
 		velocity.X = 0;
 		Velocity = velocity;
 		MoveAndSlide();
+
+		// Detectar ítems "pickup" (bidones de gasolina) tras el movimiento físico.
+		int count = GetSlideCollisionCount();
+		for (int i = 0; i < count; i++)
+		{
+			KinematicCollision2D col = GetSlideCollision(i);
+			if (col != null && col.GetCollider() is Node body && body.IsInGroup("pickup"))
+			{
+				string itemType = "fuel";
+				if (body is Pickup p) itemType = p.GetItemType();
+				EmitSignal(SignalName.PlayerCollected, itemType);
+				body.QueueFree();   // consumir el bidón
+			}
+		}
 	}
 
 	private void SetCrouching(bool crouching)

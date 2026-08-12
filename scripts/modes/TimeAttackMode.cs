@@ -60,4 +60,9 @@ public partial class TimeAttackMode : Node, IGameMode
 			_timeRemaining += 10f;
 		}
 	}
+
+	public void OnPlayerCollected(string itemType)
+	{
+		OnPlayerCollectItem(itemType);
+	}
 }

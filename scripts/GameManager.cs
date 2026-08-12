@@ -1,97 +1,161 @@
 using Godot;
 using System;
 
-// GameManager.cs
-// Bucle de endless runner: spawnea obstáculos desde la derecha que se desplazan
-// a la izquierda (WorldSpeed), detecta colisión vía la señal HitPlayer del
-// obstáculo, y permite reiniciar con R. Es el pegamento que faltaba en Cline.
+// GameManager.cs (Fase 2) — orquestador del endless runner con modos de juego.
+// - Lee GameConfig.SelectedMode y crea el IGameMode activo.
+// - Configura LevelGenerator para el modo (obstáculos / perros / bidones).
+// - Mueve obstáculos, actualiza el modo, refleja estado en el HUD.
+// - Game Over al golpear obstáculo o al cumplirse la condición de derrota del modo.
+// - Victoria al cumplirse la condición de victoria del modo.
+// - R reinicia la escena.
 
 public partial class GameManager : Node
 {
-	[Export] public NodePath PlayerPath;
-	[Export] public PackedScene ObstacleScene;
+    [Export] public NodePath PlayerPath;
+    [Export] public NodePath HudPath;
+    [Export] public NodePath LevelGeneratorPath;
+    [Export] public float WorldSpeed = 200f;
+    [Export] public float SpeedRamp = 4f;
+    [Export] public float DespawnX = -200f;
 
-	// Velocidad del mundo (px/s). Sube ligeramente con el tiempo para dificultad.
-	[Export] public float WorldSpeed = 200f;
-	[Export] public float SpeedRamp = 4f;          // px/s ganados por segundo
-	[Export] public float SpawnInterval = 1.4f;     // segundos entre obstáculos
-	[Export] public float SpawnX = 1320f;          // borde derecho (ventana 1280)
-	[Export] public float ObstacleY = 512f;        // suelo (~560) menos media altura
+    private Player _player;
+    private HUD _hud;
+    private LevelGenerator _levelGenerator;
+    private IGameMode _mode;
+    private GameModeType _modeType;
 
-	private Player _player;
-	private Label _hud;
-	private Godot.Timer _spawnTimer;
-	private bool _gameOver = false;
-	private float _elapsed = 0f;
+    private bool _gameOver = false;
+    private bool _won = false;
+    private float _startX;
 
-	public override void _Ready()
-	{
-		_player = GetNode<Player>(PlayerPath);
+    public override void _Ready()
+    {
+        CallDeferred("Setup");
+    }
 
-		_hud = new Label();
-		_hud.Position = new Vector2(12, 12);
-		_hud.Scale = new Vector2(2, 2);
-		AddChild(_hud);
+    private void Setup()
+    {
+        Node root = GetTree().Root;
+        _player = NodeUtils.FindInTree<Player>(root, "Player");
+        _hud = NodeUtils.FindInTree<HUD>(root, "HUD");
+        _levelGenerator = NodeUtils.FindInTree<LevelGenerator>(root, "LevelGenerator");
 
-		_spawnTimer = new Godot.Timer();
-		_spawnTimer.WaitTime = SpawnInterval;
-		_spawnTimer.Timeout += OnSpawnTimeout;
-		AddChild(_spawnTimer);
-		_spawnTimer.Start();
+        _modeType = GameConfig.SelectedMode;
 
-		if (_player != null)
-		{
-			// No necesitamos PlayerHit (ese era el diseño viejo); el obstáculo
-			// emite su propia señal. Lo dejamos por compatibilidad si existe.
-		}
-	}
+        // Instanciar el modo seleccionado.
+        switch (_modeType)
+        {
+            case GameModeType.TimeAttack: _mode = new TimeAttackMode(); break;
+            case GameModeType.Fuel:       _mode = new FuelMode(); break;
+            case GameModeType.Chase:      _mode = new ChaseMode(); break;
+            default:                       _mode = new TimeAttackMode(); break;
+        }
 
-	public override void _Process(double delta)
-	{
-		float dt = (float)delta;
-		if (_gameOver)
-		{
-			_hud.Text = "GAME OVER\nPulsa R para reiniciar";
-			if (Input.IsActionJustPressed("ui_accept") || Input.IsKeyPressed(Key.R))
-			{
-				GetTree().ReloadCurrentScene();
-			}
-			return;
-		}
+        // Conectar recolección de ítems (Player emite PlayerCollected al tocar "pickup").
+        _player.PlayerCollected += OnPlayerCollected;
 
-		_elapsed += dt;
-		WorldSpeed += SpeedRamp * dt;
+        // Dar referencia del jugador al modo y al generador.
+        _mode.SetPlayerReference(_player);
+        _levelGenerator?.ConfigureForMode(_modeType);
+        _levelGenerator?.SetPlayerReference(_player);
+        _levelGenerator?.SetGameManager(this);
 
-		// Mover obstáculos existentes hacia la izquierda.
-		foreach (Node child in GetChildren())
-		{
-			if (child is Obstacle obs)
-			{
-				obs.Speed = -WorldSpeed;
-				obs.DespawnX = -100f;
-			}
-		}
+        _mode.OnStart();
+        _startX = _player != null ? _player.GlobalPosition.X : 0f;
 
-		_hud.Text = $"Tiempo: {_elapsed:F1}s   Vel: {WorldSpeed:F0}";
-	}
+        string modeName = _modeType == GameModeType.TimeAttack ? "Contra Reloj"
+                        : _modeType == GameModeType.Chase ? "Perros" : "Gasolina";
+        _hud?.SetStatus("Modo: " + modeName);
+    }
 
-	private void OnSpawnTimeout()
-	{
-		if (_gameOver || ObstacleScene == null) return;
+    public override void _Process(double delta)
+    {
+        float dt = (float)delta;
+        if (_gameOver || _won || _player == null) return;
 
-		Obstacle obs = (Obstacle)ObstacleScene.Instantiate();
-		obs.Position = new Vector2(SpawnX, ObstacleY);
-		obs.Speed = -WorldSpeed;
-		obs.DespawnX = -100f;
-		obs.HitPlayer += OnObstacleHitPlayer;
-		AddChild(obs);
-	}
+        WorldSpeed += SpeedRamp * dt;
 
-	private void OnObstacleHitPlayer()
-	{
-		_gameOver = true;
-		_spawnTimer.Stop();
-		if (_player != null) _player.Visible = false;
-		GD.Print("GAME OVER");
-	}
+        // Mover obstáculos/pickups hacia la izquierda y limpiar fuera de pantalla.
+        foreach (Node child in GetChildren())
+        {
+            if (child is Obstacle obs)
+            {
+                obs.Speed = -WorldSpeed;
+                obs.DespawnX = DespawnX;
+            }
+        }
+
+        // Actualizar modo y comprobar condiciones.
+        _mode.OnUpdate(dt);
+
+        float dist = (_player.GlobalPosition.X - _startX) / 32f;
+
+        // HUD: distancia + medidor del modo (tiempo o combustible) + estado.
+        _hud?.SetDistance(dist * 32f);
+        if (_modeType == GameModeType.Fuel)
+            _hud?.SetTime(_mode.TimeRemaining);   // tanque de gasolina
+        else if (_modeType == GameModeType.TimeAttack)
+            _hud?.SetTime(_mode.TimeRemaining);   // segundos
+        else
+            _hud?.SetTime(0f);                     // Chase: sin tiempo
+
+        // Modo Chase: mover perros y detectar captura.
+        if (_modeType == GameModeType.Chase && _mode is ChaseMode chase)
+        {
+            foreach (Node child in GetChildren())
+            {
+                if (child is Dog dog)
+                {
+                    dog.Speed = chase.CurrentDogSpeed;
+                    if (dog.HasCaught(chase.CatchRadius))
+                    {
+                        TriggerGameOver();
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Pérdida por condición del modo (tiempo 0 / gasolina 0).
+        if (_mode.CheckLoseCondition())
+        {
+            TriggerGameOver();
+            return;
+        }
+
+        // Victoria por condición del modo (llegar a meta X).
+        if (_mode.CheckWinCondition())
+        {
+            _won = true;
+            _hud?.SetStatus("¡META ALCANZADA!");
+            return;
+        }
+    }
+
+    private void OnPlayerCollected(string itemType)
+    {
+        if (_gameOver || _won) return;
+        _mode.OnPlayerCollected(itemType);
+    }
+
+    // Llamado por LevelGenerator cuando un Obstacle golpea al jugador.
+    public void OnObstacleHitPlayer()
+    {
+        if (!_gameOver && !_won) TriggerGameOver();
+    }
+
+    private void TriggerGameOver()
+    {
+        _gameOver = true;
+        _hud?.SetStatus("GAME OVER - Pulsa R");
+        if (_player != null) _player.Visible = false;
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if ((_gameOver || _won) && (@event is InputEventKey key && key.Pressed && key.Keycode == Key.R))
+        {
+            GetTree().ReloadCurrentScene();
+        }
+    }
 }

@@ -1,0 +1,153 @@
+LATINDRIVER — PROMPTS DE GENERACIÓN DE IMÁGENES
+==================================================
+
+NOTA GENERAL SOBRE CONSISTENCIA DE PROPORCIÓN:
+Ver sección "CÓMO MANTENER LA MISMA PROPORCIÓN EN TODO" al final de este archivo.
+Es indispensable leerla antes de generar assets, o las piezas no van a encajar
+entre sí dentro del juego.
+
+Sufijo recomendado para TODOS los prompts de fondos/escenarios:
+"pixel art, 2D side-scrolling game background, parallax layers, no text, no watermark"
+
+--------------------------------------------------
+1. PUEBLITO (basado en Nagua)
+--------------------------------------------------
+
+TARDE (base):
+Small Caribbean village street, low colorful houses, dirt road, wooden fences,
+chickens and a dog on the street, warm afternoon light, tropical vegetation in
+background, pixel art, 2D side-scrolling game background, parallax layers, no text
+
+DÍA (variante):
+[mismo prompt de tarde] + bright midday sun, vivid colors, clear blue sky
+
+NOCHE (variante):
+[mismo prompt de tarde] + dark blue night sky, few warm streetlights, dim lighting,
+quiet empty street
+
+--------------------------------------------------
+2. CIUDAD (estética Zona Colonial, Santo Domingo)
+--------------------------------------------------
+
+TARDE (base):
+Colonial Caribbean city street, cobblestone road, golden limestone building
+facades, wrought iron balconies, old street lamps, small cars and delivery vans
+parked and driving, warm golden hour light, pixel art, 2D side-scrolling game
+background, parallax layers, no text
+
+DÍA (variante):
+[mismo prompt de tarde] + bright sunny day, clear colorful facades, tourists walking
+
+NOCHE (variante):
+[mismo prompt de tarde] + warm lamp-lit cobblestone street at night, dark sky,
+glowing windows, cars with headlights
+
+--------------------------------------------------
+3. MEGACIUDAD (basado en Gazcue, Santo Domingo)
+--------------------------------------------------
+
+TARDE (base):
+Modern dense Caribbean city avenue, multi-story concrete buildings, wide
+multi-lane road, SUVs and long trucks in traffic, urban skyline, late afternoon
+light, pixel art, 2D side-scrolling game background, parallax layers, no text
+
+DÍA (variante):
+[mismo prompt de tarde] + bright daylight, busy but orderly traffic, clear sky
+
+NOCHE (variante):
+[mismo prompt de tarde] + city skyline at night, neon signs, streetlights,
+headlights, dense traffic, dark sky
+
+--------------------------------------------------
+4. CIUDAD MARGINADA
+--------------------------------------------------
+
+TARDE (base):
+Poor urban neighborhood street, cracked asphalt with potholes, low hanging
+power cables, makeshift houses, scattered trash, stray dogs on the street,
+overcast afternoon light, pixel art, 2D side-scrolling game background,
+parallax layers, no text
+
+DÍA (variante):
+[mismo prompt de tarde] + harsh midday sun, dusty street
+
+NOCHE (variante):
+[mismo prompt de tarde] + poorly lit street, mostly dark, one or two flickering
+lights, stray dogs in shadows
+
+--------------------------------------------------
+5. AVENIDA INTERPROVINCIAL (basada en la Carretera del Norte)
+--------------------------------------------------
+
+TARDE (base):
+Open rural highway between provinces, two-lane road, tropical countryside,
+fast cars and cargo trucks, palm trees and hills in background, warm late
+afternoon light, pixel art, 2D side-scrolling game background, parallax
+layers, no text
+
+DÍA (variante):
+[mismo prompt de tarde] + bright open highway, clear sky, long visibility
+
+NOCHE (variante):
+[mismo prompt de tarde] + dark highway, truck headlights, fog patches,
+isolated road with few lights
+
+--------------------------------------------------
+PERSONAJE Y VEHÍCULO PRINCIPAL
+--------------------------------------------------
+
+Pixel art motorcycle side view, rider with helmet, Caribbean delivery style,
+simple clean sprite, transparent background, game character sprite sheet
+style, no text
+
+--------------------------------------------------
+CÓMO MANTENER LA MISMA PROPORCIÓN EN TODO
+--------------------------------------------------
+
+El problema: cada vez que generas una imagen por separado (fondo, personaje,
+obstáculo), la IA elige su propia escala interna — un "bache" generado solo
+puede salir del mismo tamaño que un carro generado solo, y al ponerlos juntos
+en el juego se ve roto.
+
+La solución NO es pedirle a la IA que "mantenga la proporción" en el prompt
+(eso casi nunca funciona bien) — es DEFINIR UNA REJILLA FIJA (grid) desde el
+principio y ajustar TODO a esa rejilla después, en un editor, no en el
+generador de imágenes.
+
+PASOS:
+
+1. Define un tamaño de sprite base ANTES de generar nada.
+   Ejemplo: personaje/moto = 64x64 px. Esto ya está sugerido en
+   PROJECT_CONTEXT.md. Confírmalo y no lo cambies después.
+
+2. Todo lo demás se mide en múltiplos de ese tamaño:
+   - Un bache pequeño: ~32x16 px (medio tile de ancho)
+   - Un carro: ~96x48 px (1.5x el ancho del personaje)
+   - Una furgoneta/jeepeta: ~128x64 px (2x el ancho del personaje)
+   - Un camión largo: ~192x64 px (3x el ancho del personaje)
+   - Un perro: ~32x24 px (más chico que el personaje)
+   Esto es una referencia inicial — ajusta proporciones según lo que se vea
+   bien en pantalla, pero SIEMPRE en múltiplos redondos del tile base.
+
+3. Genera las imágenes en la IA a cualquier resolución (usualmente salen
+   grandes, tipo 1024x1024), NO te preocupes por el tamaño final ahí.
+
+4. Recorta y escala cada sprite en un editor (Aseprite, Piskel, o incluso
+   Photoshop/GIMP) al tamaño exacto que definiste en el paso 2.
+   - Usa escalado SIN suavizado ("nearest neighbor" / "sin interpolación"),
+     nunca bicúbico ni bilineal — si no, el pixel art se ve borroso.
+   - En Aseprite: Sprite > Sprite Size, con el filtro puesto en "Nearest
+     neighbor".
+
+5. Verifica todo junto en una sola escena de prueba en Godot antes de
+   aprobar el asset: pon el personaje al lado de un carro, un bache, un
+   perro. Si algo se ve desproporcionado ahí, corrígelo ahí — no vuelvas a
+   generar la imagen, solo reescala.
+
+6. Guarda una "hoja de referencia" (un solo archivo de imagen con todos los
+   sprites ya proporcionados uno al lado del otro) para consultar cada vez
+   que agregues un sprite nuevo y evitar que se desvíe la escala con el
+   tiempo.
+
+RESUMEN: la IA genera el "arte", tú generas la "escala" — son dos pasos
+separados y siempre en ese orden.

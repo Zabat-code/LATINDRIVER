@@ -24,7 +24,7 @@ public partial class Obstacle : Area2D
 		}
 	}
 
-	private void OnAreaEntered(Area2D area)
+	private void _on_area_entered(Area2D area)
 	{
 		if (area.IsInGroup("player"))
 		{

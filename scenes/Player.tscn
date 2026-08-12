@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/Player.cs" id="Player_cs"]
+[ext_resource type="Texture" path="res://assets/sprites/rider_liviano.png" id="rider_liviano_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(32, 48)
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("Player_cs")
+Speed = 200.0
+JumpForce = -400.0
+Gravity = 900.0
+CrouchScaleY = 0.5
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("rider_liviano_tex")
+position = Vector2(0, -24)
+scale = Vector2(0.18, 0.18)
+centered = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, -16)
+shape = SubResource("RectangleShape2D_player")

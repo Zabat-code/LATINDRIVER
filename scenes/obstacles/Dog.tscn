@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/obstacles/Dog.cs" id="Dog_cs"]
+[ext_resource type="Texture" path="res://assets/sprites/obstacle.png" id="Dog_tex"]
+
+[node name="Dog" type="Node2D"]
+script = ExtResource("Dog_cs")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("Dog_tex")
+centered = true

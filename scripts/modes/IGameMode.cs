@@ -31,4 +31,7 @@ public interface IGameMode
 	// Se llama cuando el jugador recoge un ítem relevante para el modo
 	// (ej. un bidón de gasolina en FuelMode). itemType identifica el tipo.
 	void OnPlayerCollectItem(string itemType);
+
+	// Alias usado por GameManager al reenviar la señal PlayerCollected del jugador.
+	void OnPlayerCollected(string itemType);
 }

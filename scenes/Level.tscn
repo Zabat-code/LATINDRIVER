@@ -1,0 +1,87 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/GameManager.cs" id="GameManager_cs"]
+[ext_resource type="Script" path="res://scripts/Level.cs" id="Level_cs"]
+[ext_resource type="Script" path="res://scripts/LevelGenerator.cs" id="LevelGenerator_cs"]
+[ext_resource type="Script" path="res://scripts/Player.cs" id="Player_cs"]
+[ext_resource type="Script" path="res://scripts/HUD.cs" id="HUD_cs"]
+[ext_resource type="PackedScene" path="res://scenes/obstacles/Obstacle.tscn" id="Obstacle_tscn"]
+[ext_resource type="PackedScene" path="res://scenes/obstacles/Dog.tscn" id="Dog_tscn"]
+[ext_resource type="PackedScene" path="res://scenes/obstacles/Pickup.tscn" id="Pickup_tscn"]
+[ext_resource type="Texture" path="res://assets/sprites/bg.png" id="Bg_tex"]
+[ext_resource type="Texture" path="res://assets/sprites/player.png" id="Player_tex"]
+[ext_resource type="Texture" path="res://assets/sprites/obstacle.png" id="Obstacle_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(40000, 40)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(32, 48)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_obst"]
+size = Vector2(32, 48)
+
+[node name="Level" type="Node2D"]
+script = ExtResource("Level_cs")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 400)
+
+[node name="Background" type="Sprite2D" parent="."]
+texture = ExtResource("Bg_tex")
+centered = false
+position = Vector2(-640, 0)
+z_index = -10
+
+[node name="Ground" type="ColorRect" parent="."]
+position = Vector2(-10000, 540)
+offset_right = 20000.0
+offset_bottom = 60.0
+color = Color(0.3, 0.3, 0.32, 1)
+z_index = -5
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+position = Vector2(0, 560)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+shape = SubResource("RectangleShape2D_ground")
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("GameManager_cs")
+PlayerPath = NodePath("Player")
+HudPath = NodePath("HUD")
+LevelGeneratorPath = NodePath("LevelGenerator")
+
+[node name="LevelGenerator" type="Node" parent="."]
+script = ExtResource("LevelGenerator_cs")
+ObstacleScene = ExtResource("Obstacle_tscn")
+DogScene = ExtResource("Dog_tscn")
+PickupScene = ExtResource("Pickup_tscn")
+PlayerPath = NodePath("Player")
+SpawnInterval = 2.0
+SpawnAhead = 700.0
+ObstacleY = 512.0
+
+[node name="HUD" type="Control" parent="."]
+script = ExtResource("HUD_cs")
+
+[node name="Label" type="Label" parent="HUD"]
+position = Vector2(12, 12)
+scale = Vector2(2, 2)
+text = "Distancia: 0 m"
+
+[node name="Player" type="CharacterBody2D" parent="."]
+script = ExtResource("Player_cs")
+Speed = 200.0
+JumpForce = -400.0
+Gravity = 900.0
+CrouchScaleY = 0.5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, -16)
+shape = SubResource("RectangleShape2D_player")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+texture = ExtResource("Player_tex")
+centered = false
+offset = Vector2(0, -48)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
