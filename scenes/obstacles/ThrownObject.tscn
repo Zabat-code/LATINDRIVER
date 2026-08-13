@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bxtthrowobj01"]
+
+[ext_resource type="Script" path="res://scripts/obstacles/ThrownObject.cs" id="throw_cs"]
+
+[sub_resource type="RectangleShape2D" id="rect_throw"]
+size = Vector2(18, 18)
+
+[node name="ThrownObject" type="Area2D"]
+script = ExtResource("throw_cs")
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("rect_throw")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

@@ -63,10 +63,20 @@ ObstacleY = 512.0
 [node name="HUD" type="Control" parent="."]
 script = ExtResource("HUD_cs")
 
-[node name="Label" type="Label" parent="HUD"]
+[node name="DistanceLabel" type="Label" parent="HUD"]
 position = Vector2(12, 12)
 scale = Vector2(2, 2)
 text = "Distancia: 0 m"
+
+[node name="TimeLabel" type="Label" parent="HUD"]
+position = Vector2(12, 32)
+scale = Vector2(2, 2)
+text = "Tiempo: 0.0s"
+
+[node name="StatusLabel" type="Label" parent="HUD"]
+position = Vector2(12, 52)
+scale = Vector2(2, 2)
+text = "Jugando"
 
 [node name="Player" type="CharacterBody2D" parent="."]
 script = ExtResource("Player_cs")

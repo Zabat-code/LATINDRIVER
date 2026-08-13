@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://bxgameover001"]
+
+[ext_resource type="Script" path="res://scripts/GameOverScreen.cs" id="go_cs"]
+[ext_resource type="Texture" path="res://assets/sprites/gameover.png" id="go_tex"]
+[ext_resource type="Theme" path="res://ConcertHall.tres" id="theme_ch"]
+
+[node name="GameOverScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("go_cs")
+theme = ExtResource("theme_ch")
+
+[node name="Bg" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("go_tex")
+stretch_mode = 6
+
+[node name="RetryButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.78
+anchor_right = 0.5
+anchor_bottom = 0.78
+offset_left = -120.0
+offset_top = -22.0
+offset_right = 120.0
+offset_bottom = 22.0
+text = "REINTENTAR (R)"
+
+[node name="MenuButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.9
+anchor_right = 0.5
+anchor_bottom = 0.9
+offset_left = -120.0
+offset_top = -22.0
+offset_right = 120.0
+offset_bottom = 22.0
+text = "MENU"

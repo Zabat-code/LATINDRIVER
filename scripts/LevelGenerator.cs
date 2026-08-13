@@ -77,7 +77,7 @@ public partial class LevelGenerator : Node
 
 		float spawnX = _player.GlobalPosition.X + SpawnAhead;
 
-		// Siempre puede haber un obstáculo, en un carril aleatorio (alto/medio/bajo)
+				// Siempre puede haber un obstáculo, en un carril aleatorio (alto/medio/bajo)
 		// para que el cambio de carril sirva de esquive.
 		if (ObstacleScene != null)
 		{
@@ -86,14 +86,18 @@ public partial class LevelGenerator : Node
 			Obstacle obs = (Obstacle)ObstacleScene.Instantiate();
 			obs.Position = new Vector2(spawnX, laneY);
 			obs.Speed = -200f * _worldSpeedMult;   // base ajustada por mapa/turno
-			AddChild(obs);
+						AddChild(obs);
+			GD.Print("[GEN] obstacle laneY=", laneY, " spawnX=", spawnX, " playerX=", _player.GlobalPosition.X);
 		}
 
-		// Perros (modo Chase): aparecen detrás del jugador y lo persiguen.
+					// Perros (modo Chase): aparecen detrás del jugador y lo persiguen.
 		if (_mode == GameModeType.Chase && DogScene != null)
 		{
 			Dog dog = (Dog)DogScene.Instantiate();
 			dog.Position = new Vector2(_player.GlobalPosition.X - 450f, ObstacleY);
+			// Darle el target del jugador para que persiga (antes no se lo pasaba,
+			// los perros quedaban estáticos detrás y eran invisibles).
+			dog.SetTarget(_player);
 			AddChild(dog);
 		}
 

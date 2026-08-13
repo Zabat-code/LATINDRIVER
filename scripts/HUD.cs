@@ -1,48 +1,48 @@
 using Godot;
 
 // HUD.cs
-// HUD mínimo del prototipo Fase 1: muestra distancia recorrida, tiempo restante
-// del modo y un estado (Jugando / Game Over / ¡Meta!). Usa un Label hijo
-// definido en HUD.tscn.
-// En fases posteriores se reemplaza por fuentes/estilo definitivo
-// (ver PROJECT_CONTEXT.md).
+// HUD minimo del prototipo: muestra distancia recorrida, tiempo restante del
+// modo y un estado (Jugando / Game Over / Meta!).
+// En fases posteriores se reemplaza por fuentes/estilo definitivo (ver
+// PROJECT_CONTEXT.md).
 //
-// Nota de implementación: cada setter actualiza SOLO su línea dentro de un
-// text de 3 líneas (índices 0=distancia, 1=tiempo, 2=estado) para no pisar
-// la información de los otros setters.
+// Implementacion con 3 Labels independientes (Distancia / Tiempo / Estado) en
+// vez de un unico Label multilinea: cada setter actualiza SOLO su propio
+// Label, asi el nombre del modo (Estado) persiste y nunca se pisa al
+// refrescar distancia/tiempo. (Bug corregido: el Label multilinea quedaba
+// recortado y el nombre del modo se ocultaba en pantalla.)
 
 public partial class HUD : Control
 {
-	private Label _label;
+private Label _distanceLabel;
+private Label _timeLabel;
+private Label _statusLabel;
 
-	public override void _Ready()
-	{
-		_label = GetNode<Label>("Label");
-		// Estado inicial: 3 líneas separadas.
-		_label.Text = "Distancia: 0 m\nTiempo: 0.0s\nJugando";
-	}
+public override void _Ready()
+{
+// NodeUtils por robustez (el build embebido 4.7.1 falla a veces con
+// GetNode por nombre; ver NodeUtils.cs).
+_distanceLabel = NodeUtils.GetChildByName<Label>(this, "DistanceLabel");
+_timeLabel     = NodeUtils.GetChildByName<Label>(this, "TimeLabel");
+_statusLabel   = NodeUtils.GetChildByName<Label>(this, "StatusLabel");
 
-	public void SetDistance(float x)
-	{
-		var lines = _label.Text.Split('\n');
-		if (lines.Length < 3) lines = new string[] { "Distancia: 0 m", "Tiempo: 0.0s", "Jugando" };
-		lines[0] = $"Distancia: {x / 32f:F0} m";
-		_label.Text = string.Join("\n", lines);
-	}
+if (_distanceLabel != null) _distanceLabel.Text = "Distancia: 0 m";
+if (_timeLabel    != null) _timeLabel.Text     = "Tiempo: 0.0s";
+if (_statusLabel  != null) _statusLabel.Text   = "Jugando";
+}
 
-	public void SetTime(float t)
-	{
-		var lines = _label.Text.Split('\n');
-		if (lines.Length < 3) lines = new string[] { "Distancia: 0 m", "Tiempo: 0.0s", "Jugando" };
-		lines[1] = $"Tiempo: {t:F1}s";
-		_label.Text = string.Join("\n", lines);
-	}
+public void SetDistance(float x)
+{
+if (_distanceLabel != null) _distanceLabel.Text = $"Distancia: {x / 32f:F0} m";
+}
 
-	public void SetStatus(string status)
-	{
-		var lines = _label.Text.Split('\n');
-		if (lines.Length < 3) lines = new string[] { "Distancia: 0 m", "Tiempo: 0.0s", "Jugando" };
-		lines[2] = status;
-		_label.Text = string.Join("\n", lines);
-	}
+public void SetTime(float t)
+{
+if (_timeLabel != null) _timeLabel.Text = $"Tiempo: {t:F1}s";
+}
+
+public void SetStatus(string status)
+{
+if (_statusLabel != null) _statusLabel.Text = status;
+}
 }

@@ -37,6 +37,11 @@ public partial class Player : CharacterBody2D
 	// usar GlobalPosition.X como posicion de carrera.
 	[Export] public float RunSpeed = 200f;
 
+	// Multiplicador de aceleracion (1.0 normal, hasta 1.5 impuesto por
+	// GameManager). La velocidad de scroll y de obstaculos escala con esto,
+	// asi la camara (que sigue al jugador) nunca se adelanta.
+	public float AccelMultiplier { get; set; } = 1f;
+
 	[Signal] public delegate void PlayerHitEventHandler();
 	[Signal] public delegate void PlayerCollectedEventHandler(string itemType);
 
@@ -49,7 +54,7 @@ public partial class Player : CharacterBody2D
 	private float _jumpHeight = 0f;       // altura de salto actual (>=0)
 	private float _jumpVelocity = 0f;     // velocidad vertical del salto
 
-	public override void _Ready()
+		public override void _Ready()
 	{
 		AddToGroup("player");
 		_collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
@@ -61,6 +66,26 @@ public partial class Player : CharacterBody2D
 		_targetY = LaneY2;                 // carril central por defecto
 		_worldX = Position.X;              // arranca donde lo puso la escena
 		Position = new Vector2(_worldX, _targetY);
+
+		// Usar el sprite de moto generado (moto1.png) en vez del rider placeholder.
+		var spr = GetNodeOrNull<Sprite2D>("Sprite2D");
+		if (spr != null)
+		{
+			var tex = GD.Load<Texture2D>("res://assets/sprites/moto1.png");
+			if (tex != null) { spr.Texture = tex; spr.Scale = new Vector2(1f, 1f); }
+		}
+
+		// Hitbox de colisión: un Area2D hijo del Player detecta por entrada de
+		// cuerpos (obstacle / pickup) en vez de MoveAndSlide, porque el jugador
+		// se posiciona manualmente (velocidad 0) y MoveAndSlide no reportaría
+		// colisiones. El Area2D con mask incluyendo la capa 2 (obstáculos y
+		// pickups) dispara body_entered de forma edge-triggered (una sola vez).
+				var hitbox = GetNodeOrNull<Area2D>("Hitbox");
+		if (hitbox != null)
+		{
+			hitbox.BodyEntered += OnBodyEntered;
+		}
+		GD.Print("[PLY] _Ready hitbox=", hitbox != null, " childCount=", GetChildCount());
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -97,43 +122,61 @@ public partial class Player : CharacterBody2D
 			SetCrouching(wantsCrouch);
 		}
 
-		// Sin gravedad global ni avance horizontal: el mundo se mueve hacia el
-		// jugador. MoveAndSlide solo para detectar colisiones deslizantes.
-		velocity.X = 0f;
-		velocity.Y = 0f;
-		Velocity = velocity;
-		MoveAndSlide();
+						// El avance horizontal lo aporta _worldX (abajo) y la colisión se detecta
+		// vía el Area2D Hitbox (ver OnBodyEntered en _Ready). No se usa MoveAndSlide
+		// porque el jugador no se desplaza por física (se posiciona manualmente) y
+		// MoveAndSlide con velocidad 0 no reportaría colisiones.
 
 		// Avance de la carrera: la X global crece (la camara lo mantiene centrado
 		// en pantalla). Esto mueve el fondo, sube la distancia y alimenta los
-		// modos (meta por X) y el spawn de obstaculos/perros.
-		_worldX += RunSpeed * dt;
+		// modos (meta por X) y el spawn de obstaculos/perros. Escala con la
+		// aceleracion (cap 1.5x) impuesta por GameManager.
+		_worldX += RunSpeed * AccelMultiplier * dt;
 
-		// Posicion final: carril (lerp suave en Y) + altura de salto, X de carrera.
+				// Posicion final: carril (lerp suave en Y) + altura de salto, X de carrera.
 		float newY = Mathf.Lerp(Position.Y, _targetY, LaneLerp * dt) - _jumpHeight;
 		Position = new Vector2(_worldX, newY);
 
-		// Detectar colisiones deslizantes: obstaculos (grupo "obstacle") y pickups
-		// (grupo "pickup").
-		int count = GetSlideCollisionCount();
-		for (int i = 0; i < count; i++)
+		// DEBUG: contar cuerpos solapados en el Hitbox cada ~1s.
+		if (Engine.GetFramesDrawn() % 60 == 0)
 		{
-			KinematicCollision2D col = GetSlideCollision(i);
-			if (col == null) continue;
-			if (col.GetCollider() is Node body)
+			var hb = GetNodeOrNull<Area2D>("Hitbox");
+			int overlap = 0; Vector2? nearest = null;
+						if (hb != null)
 			{
-				if (body.IsInGroup("obstacle"))
+				foreach (Node body in hb.GetOverlappingBodies())
 				{
-					EmitSignal(SignalName.PlayerHit);
-				}
-				else if (body.IsInGroup("pickup"))
-				{
-					string itemType = "fuel";
-					if (body is Pickup p) itemType = p.GetItemType();
-					EmitSignal(SignalName.PlayerCollected, itemType);
-					body.QueueFree();   // consumir el bidon
+					if (body is Node2D b2)
+					{
+						overlap++;
+						nearest = b2.GlobalPosition;
+					}
 				}
 			}
+			GD.Print("[PLY_DBG] pos=", Position, " worldX=", _worldX, " hitbox_overlap=", overlap, " nearest=", nearest);
+		}
+
+				// La colisión con obstáculos y pickups se detecta vía el Area2D Hitbox
+		// (método OnBodyEntered), no vía colisiones de slide.
+	}
+
+	// Colisión de cuerpos contra la Hitbox (obstáculos -> game over; pickups ->
+	// recolección). Edge-triggered: se dispara al entrar, no cada frame, por lo
+	// que PlayerHit / PlayerCollected se emiten una sola vez por contacto.
+		private void OnBodyEntered(Node body)
+	{
+		if (body.IsInGroup("obstacle"))
+		{
+			GD.Print("[HIT] obstacle -> PlayerHit");
+			EmitSignal(SignalName.PlayerHit);
+		}
+		else if (body.IsInGroup("pickup"))
+		{
+			string itemType = "fuel";
+			if (body is Pickup p) itemType = p.GetItemType();
+			GD.Print("[HIT] pickup -> PlayerCollected ", itemType);
+			EmitSignal(SignalName.PlayerCollected, itemType);
+			body.QueueFree();   // consumir el bidón
 		}
 	}
 

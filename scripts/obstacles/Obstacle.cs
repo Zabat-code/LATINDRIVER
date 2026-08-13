@@ -13,6 +13,11 @@ public partial class Obstacle : StaticBody2D
 	// X a partir de la cual el obstaculo se considera fuera de pantalla y se libera.
 	public float DespawnX { get; set; } = -100f;
 
+	public override void _Ready()
+	{
+		AddToGroup("obstacle");
+	}
+
 	public override void _PhysicsProcess(double delta)
 	{
 		Position = new Vector2(Position.X + Speed * (float)delta, Position.Y);

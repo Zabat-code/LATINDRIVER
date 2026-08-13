@@ -1,13 +1,16 @@
 using Godot;
 using System;
 
-// GameManager.cs (Fase 2) — orquestador del endless runner con modos de juego.
+// GameManager.cs (Fase 3) — orquestador del endless runner con modos de juego.
 // - Lee GameConfig.SelectedMode y crea el IGameMode activo.
-// - Configura LevelGenerator para el modo (obstáculos / perros / bidones).
-// - Mueve obstáculos, actualiza el modo, refleja estado en el HUD.
-// - Game Over al golpear obstáculo o al cumplirse la condición de derrota del modo.
-// - Victoria al cumplirse la condición de victoria del modo.
-// - R reinicia la escena.
+// - Colision ROBUSTA por distancia (no depende de capas de fisica): al tocar
+//   un obstaculo o que un perro lo alcance -> GAME OVER. Esto arregla el bug de
+//   que el personaje "no hacia nada" al chocar.
+// - Aceleracion gradual CAP 1.5x: la velocidad de scroll y de obstaculos escala
+//   con el mismo multiplicador, asi la camara nunca se adelanta al jugador.
+// - Lanzar objetos hacia atras (tecla) para derribar perros.
+// - Pantalla de GAME OVER (imagen de caricatura + Reintentar/Menu).
+// - Musica en bucle + control de volumen.
 
 public partial class GameManager : Node
 {
@@ -17,6 +20,9 @@ public partial class GameManager : Node
     [Export] public float WorldSpeed = 200f;
     [Export] public float SpeedRamp = 4f;
     [Export] public float DespawnX = -200f;
+    [Export] public float HitHalfWidth = 30f;    // tolerancia de colision en X
+    [Export] public float HitHalfHeight = 30f;    // tolerancia de colision en Y
+    [Export] public float ThrowCooldown = 0.6f;
 
     private Player _player;
     private HUD _hud;
@@ -27,6 +33,12 @@ public partial class GameManager : Node
     private bool _gameOver = false;
     private bool _won = false;
     private float _startX;
+    private float _accelMult = 1f;
+    private float _throwTimer = 0f;
+    private MusicManager _music;
+
+    // Tolerancia de captura de perro (debe coincidir con ChaseMode.CatchDistance).
+    private float _catchDist = 40f;
 
     public override void _Ready()
     {
@@ -41,8 +53,6 @@ public partial class GameManager : Node
         _levelGenerator = NodeUtils.FindInTree<LevelGenerator>(root, "LevelGenerator");
 
         _modeType = GameConfig.SelectedMode;
-
-        // Instanciar el modo seleccionado.
         switch (_modeType)
         {
             case GameModeType.TimeAttack: _mode = new TimeAttackMode(); break;
@@ -51,19 +61,24 @@ public partial class GameManager : Node
             default:                       _mode = new TimeAttackMode(); break;
         }
 
-        // Conectar colisión con obstáculos (Player emite PlayerHit al tocar
-        // un nodo del grupo "obstacle") y recolección de ítems.
         _player.PlayerHit += OnObstacleHitPlayer;
         _player.PlayerCollected += OnPlayerCollected;
 
-        // Dar referencia del jugador al modo y al generador.
         _mode.SetPlayerReference(_player);
         _levelGenerator?.ConfigureForMode(_modeType);
         _levelGenerator?.SetPlayerReference(_player);
         _levelGenerator?.SetGameManager(this);
-        // Aplicar mapa + turno (densidad/velocidad y tinte visual).
         _levelGenerator?.ConfigureMap(GameConfig.SelectedMap, GameConfig.SelectedTurn);
         ApplyMapTint(GameConfig.SelectedMap, GameConfig.SelectedTurn);
+
+        // Acciones de entrada (por si el project.godot no las tiene).
+        RegisterAction("accelerate", Key.Shift);
+        RegisterAction("throw", Key.X);
+
+        // Musica + volumen por defecto.
+        _music = new MusicManager();
+        AddChild(_music);
+        _music.SetVolume(0.6f);
 
         _mode.OnStart();
         _startX = _player != null ? _player.GlobalPosition.X : 0f;
@@ -73,46 +88,56 @@ public partial class GameManager : Node
         _hud?.SetStatus("Modo: " + modeName);
     }
 
+    private void RegisterAction(string name, Key key)
+    {
+        if (!InputMap.HasAction(name))
+        {
+            InputEventKey ev = new InputEventKey();
+            ev.Keycode = key;
+            InputMap.AddAction(name);
+            InputMap.ActionAddEvent(name, ev);
+        }
+    }
+
     public override void _Process(double delta)
     {
         float dt = (float)delta;
         if (_gameOver || _won || _player == null) return;
 
+        // --- Aceleracion gradual CAP 1.5x ---
+        bool accel = Input.IsActionPressed("accelerate");
+        _accelMult = accel ? 1.5f : 1.0f;
+        // el jugador avanza mas rapido y los obstaculos tambien -> la camara
+        // (que sigue al jugador) nunca se adelanta.
+        _player.AccelMultiplier = _accelMult;
+
         WorldSpeed += SpeedRamp * dt;
 
-        // Mover obstáculos/pickups hacia la izquierda y limpiar fuera de pantalla.
-        foreach (Node child in GetChildren())
+        if (_levelGenerator != null)
         {
-            if (child is Obstacle obs)
+            foreach (Node child in _levelGenerator.GetChildren())
             {
-                obs.Speed = -WorldSpeed;
-                obs.DespawnX = DespawnX;
+                if (child is Obstacle obs)
+                {
+                    obs.Speed = -WorldSpeed * _accelMult;
+                    obs.DespawnX = DespawnX;
+                }
             }
         }
 
-        // Actualizar modo y comprobar condiciones.
         _mode.OnUpdate(dt);
 
-        float dist = (_player.GlobalPosition.X - _startX) / 32f;
-
-        // HUD: distancia + medidor del modo (tiempo o combustible) + estado.
-        _hud?.SetDistance(dist * 32f);
-        if (_modeType == GameModeType.Fuel)
-            _hud?.SetTime(_mode.TimeRemaining);   // tanque de gasolina
-        else if (_modeType == GameModeType.TimeAttack)
-            _hud?.SetTime(_mode.TimeRemaining);   // segundos
-        else
-            _hud?.SetTime(0f);                     // Chase: sin tiempo
-
-        // Modo Chase: mover perros y detectar captura.
-        if (_modeType == GameModeType.Chase && _mode is ChaseMode chase)
+        // --- Colision ROBUSTA por distancia (obstaculos) ---
+        float px = _player.GlobalPosition.X;
+        float py = _player.GlobalPosition.Y - 16f; // centro del hitbox del jugador
+        if (_levelGenerator != null)
         {
-            foreach (Node child in GetChildren())
+            foreach (Node child in _levelGenerator.GetChildren())
             {
-                if (child is Dog dog)
+                if (child is Obstacle obs)
                 {
-                    dog.Speed = chase.CurrentDogSpeed;
-                    if (dog.HasCaught(chase.CatchRadius))
+                    if (Mathf.Abs(obs.GlobalPosition.X - px) <= HitHalfWidth &&
+                        Mathf.Abs(obs.GlobalPosition.Y - py) <= HitHalfHeight)
                     {
                         TriggerGameOver();
                         return;
@@ -121,14 +146,41 @@ public partial class GameManager : Node
             }
         }
 
-        // Pérdida por condición del modo (tiempo 0 / gasolina 0).
-        if (_mode.CheckLoseCondition())
+        float dist = (_player.GlobalPosition.X - _startX) / 32f;
+        _hud?.SetDistance(dist * 32f);
+        if (_modeType == GameModeType.Fuel)
+            _hud?.SetTime(_mode.TimeRemaining);
+        else if (_modeType == GameModeType.TimeAttack)
+            _hud?.SetTime(_mode.TimeRemaining);
+        else
+            _hud?.SetTime(0f);
+
+        // --- Perros (modo Chase): mover y detectar captura ---
+        if (_modeType == GameModeType.Chase && _mode is ChaseMode chase && _levelGenerator != null)
         {
-            TriggerGameOver();
-            return;
+            foreach (Node child in _levelGenerator.GetChildren())
+            {
+                if (child is Dog dog)
+                {
+                    dog.Speed = chase.CurrentDogSpeed;
+                    if (dog.HasCaught(_catchDist))
+                    {
+                        TriggerGameOver();
+                        return;
+                    }
+                }
+            }
         }
 
-        // Victoria por condición del modo (llegar a meta X).
+        // --- Lanzar objeto hacia atras ---
+        _throwTimer -= dt;
+        if (Input.IsActionJustPressed("throw") && _throwTimer <= 0f)
+        {
+            _throwTimer = ThrowCooldown;
+            SpawnThrown();
+        }
+
+        if (_mode.CheckLoseCondition()) { TriggerGameOver(); return; }
         if (_mode.CheckWinCondition())
         {
             _won = true;
@@ -137,13 +189,23 @@ public partial class GameManager : Node
         }
     }
 
+    private void SpawnThrown()
+    {
+        var scene = GD.Load<PackedScene>("res://scenes/obstacles/ThrownObject.tscn");
+        if (scene == null || _player == null) return;
+        ThrownObject t = (ThrownObject)scene.Instantiate();
+        t.Position = new Vector2(_player.GlobalPosition.X - 20f, _player.GlobalPosition.Y - 16f);
+        t.SetOrigin(_player.GlobalPosition.X);
+        GetTree().Root.AddChild(t);
+        GD.Print("[THROW] objeto lanzado");
+    }
+
     private void OnPlayerCollected(string itemType)
     {
         if (_gameOver || _won) return;
         _mode.OnPlayerCollected(itemType);
     }
 
-    // Aplica el tinte de color del mapa+turno al fondo (Sprite2D Background).
     private void ApplyMapTint(int mapIndex, TurnType turn)
     {
         Node root = GetTree().Root;
@@ -151,7 +213,6 @@ public partial class GameManager : Node
         if (bg != null) bg.Modulate = MapConfig.TinteMapa(mapIndex, turn);
     }
 
-    // Llamado por LevelGenerator cuando un Obstacle golpea al jugador.
     public void OnObstacleHitPlayer()
     {
         if (!_gameOver && !_won) TriggerGameOver();
@@ -159,22 +220,35 @@ public partial class GameManager : Node
 
     private void TriggerGameOver()
     {
+        if (_gameOver || _won) return;
         _gameOver = true;
-        _hud?.SetStatus("GAME OVER - Pulsa R");
+        _hud?.SetStatus("GAME OVER");
         if (_player != null) _player.Visible = false;
+
+        var goScene = GD.Load<PackedScene>("res://scenes/GameOver.tscn");
+        if (goScene != null)
+        {
+            var go = goScene.Instantiate();
+            GetTree().Root.AddChild(go);
+        }
+        GD.Print("[GAME OVER] el jugador choco");
+    }
+
+    // Control de volumen desde fuera (p.ej. un slider en el HUD/pausa).
+    public void SetMusicVolume(float linear)
+    {
+        _music?.SetVolume(linear);
     }
 
     public override void _UnhandledInput(InputEvent @event)
     {
-    	// R: reiniciar la partida (en game over o victoria).
-    	if ((_gameOver || _won) && (@event is InputEventKey key && key.Pressed && key.Keycode == Key.R))
-    	{
-    		GetTree().ReloadCurrentScene();
-    	}
-    	// Esc: volver al menú principal en cualquier momento.
-    	if (@event is InputEventKey esc && esc.Pressed && esc.Keycode == Key.Escape)
-    	{
-    		GetTree().ChangeSceneToFile("res://scenes/MainMenu.tscn");
-    	}
+        if ((_gameOver || _won) && (@event is InputEventKey key && key.Pressed && key.Keycode == Key.R))
+        {
+            GetTree().ReloadCurrentScene();
+        }
+        if (@event is InputEventKey esc && esc.Pressed && esc.Keycode == Key.Escape)
+        {
+            GetTree().ChangeSceneToFile("res://scenes/MainMenu.tscn");
+        }
     }
 }

@@ -13,7 +13,7 @@ public enum GameModeType
 
 public static class GameConfig
 {
-    public static GameModeType SelectedMode = GameModeType.TimeAttack;
+            public static GameModeType SelectedMode = GameModeType.TimeAttack;
     public static int SelectedMap = 1;            // índice en MapConfig.Maps (0..4)
     public static TurnType SelectedTurn = TurnType.Tarde;
 }

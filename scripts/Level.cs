@@ -47,12 +47,15 @@ public partial class Level : Node2D
 	{
 		if (_player == null) return;
 
-		// Fondo: desplazar el RegionRect segun la X de carrera del jugador.
+				// Fondo: desplazar el RegionRect segun la X de carrera del jugador.
 		// Como la textura tiene repeat, fuera de [0,ancho] se envuelve -> scroll infinito.
 		if (_background != null)
 		{
 			float scroll = _player.GlobalPosition.X;
 			_background.RegionRect = new Rect2(scroll, 0f, BgWidth, BgHeight);
+			// Reubicar el sprite para que siga la camara (siempre cubra el viewport)
+			// mientras la textura repetida hace el scroll infinito.
+			_background.Position = new Vector2(_player.GlobalPosition.X - ViewportHalfWidth, CameraY - BgHeight / 2f);
 		}
 
 		// Cámara: sigue en X, Y fija (evita que el carril oculte el sprite).

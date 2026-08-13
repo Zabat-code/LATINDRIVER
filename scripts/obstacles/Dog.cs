@@ -13,6 +13,11 @@ public partial class Dog : Node2D
 
 	private Player _target;
 
+	public override void _Ready()
+	{
+		AddToGroup("dog");
+	}
+
 	public void SetTarget(Player player)
 	{
 		_target = player;
@@ -29,7 +34,7 @@ public partial class Dog : Node2D
 		}
 	}
 
-	// ¿Atrapó al jugador? (distancia menor al umbral de captura)
+		// ¿Atrapó al jugador? (distancia menor al umbral de captura)
 	public bool HasCaught(float catchDistance)
 	{
 		if (_target == null) return false;

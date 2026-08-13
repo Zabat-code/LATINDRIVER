@@ -5,7 +5,17 @@
 [node name="HUD" type="Control"]
 script = ExtResource("HUD_cs")
 
-[node name="Label" type="Label" parent="."]
+[node name="DistanceLabel" type="Label" parent="."]
 position = Vector2(12, 12)
 scale = Vector2(2, 2)
 text = "Distancia: 0 m"
+
+[node name="TimeLabel" type="Label" parent="."]
+position = Vector2(12, 32)
+scale = Vector2(2, 2)
+text = "Tiempo: 0.0s"
+
+[node name="StatusLabel" type="Label" parent="."]
+position = Vector2(12, 52)
+scale = Vector2(2, 2)
+text = "Jugando"
