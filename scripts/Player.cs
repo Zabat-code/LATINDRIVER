@@ -45,6 +45,19 @@ public partial class Player : CharacterBody2D
     public int CurrentLane => _lane;
     public bool IsCrouching => _isCrouching;
 
+    // Posición de suelo (sin salto) para que los perros persigan el carril
+    public float GetFloorPosition()
+    {
+        return _lane switch
+        {
+            0 => LaneY1,
+            1 => LaneY2,
+            2 => LaneY3,
+            3 => LaneY4,
+            _ => LaneY2
+        };
+    }
+
     public override void _Ready()
     {
         AddToGroup("player");
