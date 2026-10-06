@@ -11,7 +11,7 @@ using Godot;
 public partial class MainMenu : Node2D
 {
     private Button _playButton;
-    private Button _mode1, _mode2, _mode3;
+    private Button _mode1, _mode2, _mode3, _mode4;
     private Button _map4, _map5, _map6, _map7, _map8;
     private Button _turn7, _turn8, _turn9;
     private Label _modeLabel, _mapLabel, _turnLabel;
@@ -22,6 +22,7 @@ public partial class MainMenu : Node2D
         _mode1 = NodeUtils.GetChildByName<Button>(this, "Mode1Button");
         _mode2 = NodeUtils.GetChildByName<Button>(this, "Mode2Button");
         _mode3 = NodeUtils.GetChildByName<Button>(this, "Mode3Button");
+        _mode4 = NodeUtils.GetChildByName<Button>(this, "Mode4Button");
         _map4 = NodeUtils.GetChildByName<Button>(this, "Map1Button");
         _map5 = NodeUtils.GetChildByName<Button>(this, "Map2Button");
         _map6 = NodeUtils.GetChildByName<Button>(this, "Map3Button");
@@ -38,6 +39,7 @@ public partial class MainMenu : Node2D
         _mode1.Pressed += () => SelectMode(GameModeType.TimeAttack);
         _mode2.Pressed += () => SelectMode(GameModeType.Chase);
         _mode3.Pressed += () => SelectMode(GameModeType.Fuel);
+        if (_mode4 != null) _mode4.Pressed += () => SelectMode(GameModeType.Libre);
         _map4.Pressed += () => SelectMap(0);
         _map5.Pressed += () => SelectMap(1);
         _map6.Pressed += () => SelectMap(2);
@@ -55,7 +57,7 @@ public partial class MainMenu : Node2D
     private void SelectMode(GameModeType mode)
     {
         GameConfig.SelectedMode = mode;
-        _modeLabel.Text = "Modo: " + (mode == GameModeType.TimeAttack ? "Contra Reloj" : mode == GameModeType.Chase ? "Perros" : "Gasolina");
+        _modeLabel.Text = "Modo: " + (mode == GameModeType.TimeAttack ? "Contra Reloj" : mode == GameModeType.Chase ? "Perros" : mode == GameModeType.Fuel ? "Gasolina" : "Libre");
     }
 
     private void SelectMap(int idx)

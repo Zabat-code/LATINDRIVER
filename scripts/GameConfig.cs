@@ -8,7 +8,8 @@ public enum GameModeType
 {
     TimeAttack,
     Chase,
-    Fuel
+    Fuel,
+    Libre
 }
 
 public static class GameConfig

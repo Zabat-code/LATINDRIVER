@@ -58,6 +58,7 @@ public partial class GameManager : Node
             case GameModeType.TimeAttack: _mode = new TimeAttackMode(); break;
             case GameModeType.Fuel:       _mode = new FuelMode(); break;
             case GameModeType.Chase:      _mode = new ChaseMode(); break;
+            case GameModeType.Libre:      _mode = new LibreMode(); break;
             default:                       _mode = new TimeAttackMode(); break;
         }
 
@@ -84,7 +85,8 @@ public partial class GameManager : Node
         _startX = _player != null ? _player.GlobalPosition.X : 0f;
 
         string modeName = _modeType == GameModeType.TimeAttack ? "Contra Reloj"
-                        : _modeType == GameModeType.Chase ? "Perros" : "Gasolina";
+                        : _modeType == GameModeType.Chase ? "Perros"
+                        : _modeType == GameModeType.Fuel ? "Gasolina" : "Libre";
         _hud?.SetStatus("Modo: " + modeName);
     }
 
@@ -152,6 +154,8 @@ public partial class GameManager : Node
             _hud?.SetTime(_mode.TimeRemaining);
         else if (_modeType == GameModeType.TimeAttack)
             _hud?.SetTime(_mode.TimeRemaining);
+        else if (_modeType == GameModeType.Libre && _mode is LibreMode libre)
+            _hud?.SetTime(libre.CurrentDifficulty); // muestra dificultad como "nivel"
         else
             _hud?.SetTime(0f);
 
