@@ -8,6 +8,8 @@ LATINDRIVER is a pixel-art-inspired arcade driving game built with Godot 4.7.1 a
 
 The latest playable artifact found in the workspace is **v0.6 for Linux x86_64**. It was launched under Xvfb with Godot's OpenGL compatibility renderer and remained running for the verification window without startup or runtime errors.
 
+The current `main` source includes the updated directional controls: **Left arrow = throw backward** and **Right arrow = throw forward**. The v0.6 binary predates this source change because the Godot .NET export template is not installed in this environment; rebuild the project with Godot 4.7.1 .NET to obtain a binary containing the new mapping.
+
 ## Features
 
 - Four-lane road movement with keyboard controls.
