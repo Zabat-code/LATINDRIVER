@@ -7,8 +7,11 @@ Estilo: pixel art con paleta tropical (influencia Mega Man + tropical).
 from PIL import Image, ImageDraw
 import os
 
-OUTPUT_DIR = "/home/gerardo/Desktop/LATINDRIVER/assets/sprites"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_DIR = PROJECT_ROOT / "assets" / "sprites"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Paleta tropical
 COLORS = {

@@ -2,7 +2,8 @@
 # LATINDRIVER Launcher
 # Lanza el juego Godot 4.7.1 con el proyecto LATINDRIVER
 
-cd /home/gerardo/Desktop/LATINDRIVER
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 export PATH="$HOME/.local/bin:$PATH"
 
 # Si hay display disponible, lanzar directamente; si no, usar xvfb

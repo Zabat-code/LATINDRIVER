@@ -10,8 +10,11 @@ from mido import MidiFile, MidiTrack, Message, MetaMessage
 import os
 import subprocess
 
-OUTPUT_DIR = "/home/gerardo/Desktop/LATINDRIVER/assets/audio/music"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_DIR = PROJECT_ROOT / "assets" / "audio" / "music"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 TPQ = 480
 SOUNDFONT = "/usr/share/sounds/sf3/MuseScore_General.sf3"
