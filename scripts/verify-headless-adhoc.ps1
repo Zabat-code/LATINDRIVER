@@ -2,8 +2,8 @@
 # Build + headless REAL load de MainMenu y Level en Godot 4.7.1 (embedded).
 # Filtra el ruido benigno de shutdown (RID leaks / Unreferenced static string).
 $ErrorActionPreference = "Stop"
-$proj = "F:\ia.proyectos\LATINDRIVER"
-$godot = Join-Path $proj "Godot_v4.7.1-stable_mono_win64\Godot_v4.7.1-stable_mono_win64_console.exe"
+$proj = (Resolve-Path (Join-Path $PSScriptRoot ".."))
+$godot = if ($env:GODOT_MONO_BIN) { $env:GODOT_MONO_BIN } else { "godot" }
 
 function Run-Scene {
     param([string]$scene, [string]$out)

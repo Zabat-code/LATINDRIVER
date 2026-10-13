@@ -4,7 +4,7 @@ Instrucciones para el constructor: sigue las tareas en orden. Marca cada una com
 
 ## 0. Setup del proyecto
 - [ ] Confirmar que Godot 4.x (.NET) está instalado y abre correctamente
-- [ ] Crear nuevo proyecto Godot en `F:\ia.proyectos\LATINDRIVER`, modo "C#" (Mono/.NET)
+- [ ] Crear nuevo proyecto Godot en `LATINDRIVER`, modo "C#" (Mono/.NET)
 - [ ] Crear la estructura de carpetas descrita en PROJECT_CONTEXT.md (`scenes/`, `scripts/`, `assets/`, `docs/`)
 - [ ] Copiar `PROJECT_CONTEXT.md` y `TASKS.md` a `LATINDRIVER/docs/`
 - [ ] Inicializar repo Git en la carpeta del proyecto, con `.gitignore` estándar de Godot (incluir `.godot/`, `*.tmp`, etc.)

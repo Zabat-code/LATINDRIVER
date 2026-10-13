@@ -4,8 +4,11 @@
 import os
 from PIL import Image
 
-SRC = r"F:\ia.proyectos\LATINDRIVER\assets\sprites\generated\moto.png"
-OUT = r"F:\ia.proyectos\LATINDRIVER\assets\sprites\moto_player.png"
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC = PROJECT_ROOT / "assets" / "sprites" / "generated" / "moto.png"
+OUT = PROJECT_ROOT / "assets" / "sprites" / "moto_player.png"
 im = Image.open(SRC).convert("RGBA")
 W, H = im.size
 

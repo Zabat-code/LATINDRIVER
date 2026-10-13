@@ -8,7 +8,8 @@ using System;
 //   que el personaje "no hacia nada" al chocar.
 // - Aceleracion gradual CAP 1.5x: la velocidad de scroll y de obstaculos escala
 //   con el mismo multiplicador, asi la camara nunca se adelanta al jugador.
-// - Lanzar objetos hacia atras (tecla) para derribar perros.
+// - Lanzar objetos hacia atras o hacia adelante (flechas izquierda/derecha).
+// - La tecla X se conserva como atajo para disparar hacia atras.
 // - Pantalla de GAME OVER (imagen de caricatura + Reintentar/Menu).
 // - Musica en bucle + control de volumen.
 
@@ -176,12 +177,11 @@ public partial class GameManager : Node
             }
         }
 
-        // --- Lanzar objeto hacia atras ---
+        // --- Disparo trasero de compatibilidad (tecla X) ---
         _throwTimer -= dt;
-        if (Input.IsActionJustPressed("throw") && _throwTimer <= 0f)
+        if (Input.IsActionJustPressed("throw"))
         {
-            _throwTimer = ThrowCooldown;
-            SpawnThrown();
+            TrySpawnThrown(-1f);
         }
 
         if (_mode.CheckLoseCondition()) { TriggerGameOver(); return; }
@@ -193,15 +193,23 @@ public partial class GameManager : Node
         }
     }
 
-    private void SpawnThrown()
+    private void TrySpawnThrown(float direction)
+    {
+        if (_throwTimer > 0f) return;
+        _throwTimer = ThrowCooldown;
+        SpawnThrown(direction);
+    }
+
+    private void SpawnThrown(float direction)
     {
         var scene = GD.Load<PackedScene>("res://scenes/obstacles/ThrownObject.tscn");
         if (scene == null || _player == null) return;
         ThrownObject t = (ThrownObject)scene.Instantiate();
-        t.Position = new Vector2(_player.GlobalPosition.X - 20f, _player.GlobalPosition.Y - 16f);
+        t.Position = new Vector2(_player.GlobalPosition.X + direction * 20f, _player.GlobalPosition.Y - 16f);
         t.SetOrigin(_player.GlobalPosition.X);
+        t.SetDirection(direction);
         GetTree().Root.AddChild(t);
-        GD.Print("[THROW] objeto lanzado");
+        GD.Print(direction < 0f ? "[THROW] objeto hacia atras" : "[THROW] objeto hacia adelante");
     }
 
     private void OnPlayerCollected(string itemType)
@@ -246,6 +254,12 @@ public partial class GameManager : Node
 
     public override void _UnhandledInput(InputEvent @event)
     {
+        if (@event is InputEventKey arrow && arrow.Pressed && !arrow.Echo)
+        {
+            if (arrow.Keycode == Key.Left) TrySpawnThrown(-1f);
+            if (arrow.Keycode == Key.Right) TrySpawnThrown(1f);
+        }
+
         if ((_gameOver || _won) && (@event is InputEventKey key && key.Pressed && key.Keycode == Key.R))
         {
             GetTree().ReloadCurrentScene();

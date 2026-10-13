@@ -2,140 +2,140 @@
   "count": 20,
   "items": [
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\avenida_dia_1.png",
+      "out": "assets/sprites/generated/avenida_dia_1.png",
       "prompt": "2D side-scrolling endless-runner background, avenida colonial latinoamericana de dia, edificios de colores, faroles, banquetas, cielo despejado, estilo cartoon limpio coherente con 'Concert Hall', tileable horizontal, no personajes, 16:9",
       "kind": "background",
       "source_id": "avenida_dia",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\avenida_dia_2.png",
+      "out": "assets/sprites/generated/avenida_dia_2.png",
       "prompt": "2D side-scrolling endless-runner background, avenida colonial latinoamericana de dia, edificios de colores, faroles, banquetas, cielo despejado, estilo cartoon limpio coherente con 'Concert Hall', tileable horizontal, no personajes, 16:9",
       "kind": "background",
       "source_id": "avenida_dia",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\avenida_tarde_1.png",
+      "out": "assets/sprites/generated/avenida_tarde_1.png",
       "prompt": "2D side-scroller background, avenida colonial al atardecer, luz naranja calida, siluetas de edificios, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "avenida_tarde",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\avenida_tarde_2.png",
+      "out": "assets/sprites/generated/avenida_tarde_2.png",
       "prompt": "2D side-scroller background, avenida colonial al atardecer, luz naranja calida, siluetas de edificios, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "avenida_tarde",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\avenida_noche_1.png",
+      "out": "assets/sprites/generated/avenida_noche_1.png",
       "prompt": "2D side-scroller background, avenida colonial de noche, faroles encendidos, cielo purpura, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "avenida_noche",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\avenida_noche_2.png",
+      "out": "assets/sprites/generated/avenida_noche_2.png",
       "prompt": "2D side-scroller background, avenida colonial de noche, faroles encendidos, cielo purpura, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "avenida_noche",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\ciudad_dia_1.png",
+      "out": "assets/sprites/generated/ciudad_dia_1.png",
       "prompt": "2D side-scroller background, centro colonial latinoamericano de dia, plaza, fuente, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "ciudad_dia",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\ciudad_dia_2.png",
+      "out": "assets/sprites/generated/ciudad_dia_2.png",
       "prompt": "2D side-scroller background, centro colonial latinoamericano de dia, plaza, fuente, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "ciudad_dia",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\ciudad_tarde_1.png",
+      "out": "assets/sprites/generated/ciudad_tarde_1.png",
       "prompt": "2D side-scroller background, centro colonial al atardecer, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "ciudad_tarde",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\ciudad_tarde_2.png",
+      "out": "assets/sprites/generated/ciudad_tarde_2.png",
       "prompt": "2D side-scroller background, centro colonial al atardecer, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "ciudad_tarde",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\ciudad_noche_1.png",
+      "out": "assets/sprites/generated/ciudad_noche_1.png",
       "prompt": "2D side-scroller background, centro colonial de noche, luces de ventanas, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "ciudad_noche",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\ciudad_noche_2.png",
+      "out": "assets/sprites/generated/ciudad_noche_2.png",
       "prompt": "2D side-scroller background, centro colonial de noche, luces de ventanas, estilo cartoon, tileable horizontal, 16:9",
       "kind": "background",
       "source_id": "ciudad_noche",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\moto_azul_1.png",
+      "out": "assets/sprites/generated/moto_azul_1.png",
       "prompt": "64x64 pixel-art cartoon motorcycle, blue, side view, two wheels, handlebar, headlight, clean shape, transparent background",
       "kind": "character",
       "source_id": "moto_azul",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\moto_azul_2.png",
+      "out": "assets/sprites/generated/moto_azul_2.png",
       "prompt": "64x64 pixel-art cartoon motorcycle, blue, side view, two wheels, handlebar, headlight, clean shape, transparent background",
       "kind": "character",
       "source_id": "moto_azul",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\moto_roja_1.png",
+      "out": "assets/sprites/generated/moto_roja_1.png",
       "prompt": "64x64 pixel-art cartoon motorcycle, red, side view, two wheels, handlebar, headlight, clean shape, transparent background",
       "kind": "character",
       "source_id": "moto_roja",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\moto_roja_2.png",
+      "out": "assets/sprites/generated/moto_roja_2.png",
       "prompt": "64x64 pixel-art cartoon motorcycle, red, side view, two wheels, handlebar, headlight, clean shape, transparent background",
       "kind": "character",
       "source_id": "moto_roja",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\moto_verde_1.png",
+      "out": "assets/sprites/generated/moto_verde_1.png",
       "prompt": "64x64 pixel-art cartoon motorcycle, green, side view, two wheels, handlebar, headlight, clean shape, transparent background",
       "kind": "character",
       "source_id": "moto_verde",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\moto_verde_2.png",
+      "out": "assets/sprites/generated/moto_verde_2.png",
       "prompt": "64x64 pixel-art cartoon motorcycle, green, side view, two wheels, handlebar, headlight, clean shape, transparent background",
       "kind": "character",
       "source_id": "moto_verde",
       "variant": 2
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\gameover_1.png",
+      "out": "assets/sprites/generated/gameover_1.png",
       "prompt": "cartoon accident crash illustration, tipped motorcycle, comic 'POW' style, big 'GAME OVER' text, funny not gore, 16:9",
       "kind": "ui",
       "source_id": "gameover",
       "variant": 1
     },
     {
-      "out": "F:\\ia.proyectos\\LATINDRIVER\\assets\\sprites\\generated\\gameover_2.png",
+      "out": "assets/sprites/generated/gameover_2.png",
       "prompt": "cartoon accident crash illustration, tipped motorcycle, comic 'POW' style, big 'GAME OVER' text, funny not gore, 16:9",
       "kind": "ui",
       "source_id": "gameover",

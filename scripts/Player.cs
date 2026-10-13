@@ -93,8 +93,8 @@ public partial class Player : CharacterBody2D
         ElapsedTime += dt;
 
         // --- Cambio de carril (4 carriles: 0-3) ---
-        if (Input.IsActionJustPressed("ui_left") && _lane > 0) _lane--;
-        if (Input.IsActionJustPressed("ui_right") && _lane < 3) _lane++;
+        // Las flechas izquierda/derecha quedan reservadas para disparar.
+        // A/D cambian de carril para no perder esta mecánica.
         _targetY = _lane switch
         {
             0 => LaneY1,
@@ -153,6 +153,14 @@ public partial class Player : CharacterBody2D
             EmitSignal(SignalName.PlayerCollected, itemType);
             body.QueueFree();
         }
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event is not InputEventKey key || !key.Pressed || key.Echo) return;
+
+        if (key.Keycode == Key.A && _lane > 0) _lane--;
+        if (key.Keycode == Key.D && _lane < 3) _lane++;
     }
 
     private void SetCrouching(bool crouching)

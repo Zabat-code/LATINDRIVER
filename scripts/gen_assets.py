@@ -8,7 +8,7 @@ import json, urllib.request, urllib.parse, time, os, sys, glob
 COMFY = "http://127.0.0.1:8188"
 CKPT = "v1-5-pruned-fp16.safetensors"
 OUTDIR = os.path.join(os.path.dirname(__file__), "..", "assets", "sprites", "generated")
-COMFY_OUT = r"F:\ComfyUI\output"
+COMFY_OUT = os.environ.get("COMFYUI_OUTPUT", os.path.expanduser("~/ComfyUI/output"))
 os.makedirs(OUTDIR, exist_ok=True)
 
 BG_SUFFIX = "pixel art, 2D side-scrolling game background, parallax layers, no text, no watermark"

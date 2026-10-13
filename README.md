@@ -23,8 +23,10 @@ The latest playable artifact found in the workspace is **v0.6 for Linux x86_64**
 
 | Action | Keys |
 |---|---|
-| Change lane | Arrow keys or W / S |
-| Throw backward / forward | Z / Q · X / E |
+| Change lane | A / D |
+| Throw backward | Left arrow or X |
+| Throw forward | Right arrow |
+| Jump / crouch | Up / Down arrows |
 | Nitro | Space |
 | Pause | P / Esc |
 | Retry | R |

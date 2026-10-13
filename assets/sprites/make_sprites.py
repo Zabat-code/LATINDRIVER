@@ -3,7 +3,10 @@
 from PIL import Image
 import os
 
-SRC = r"F:\ia.proyectos\LATINDRIVER\assets\sprites"
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SRC = PROJECT_ROOT / "assets" / "sprites"
 OUT = SRC
 
 def save(im, name):
